@@ -28,6 +28,9 @@ nyaBsSelect.directive('nyaBsSelect', ['$parse', '$document', '$timeout', '$compi
 
   return {
     restrict: 'ECA',
+    scope:{
+      closeEvent:'&closeEvent'
+    },
     require: ['ngModel', 'nyaBsSelect'],
     controller: 'nyaBsSelectCtrl',
     compile: function nyaBsSelectCompile (tElement, tAttrs){
@@ -328,6 +331,7 @@ nyaBsSelect.directive('nyaBsSelect', ['$parse', '$document', '$timeout', '$compi
         var outClick = function(event) {
           if(filterTarget(event.target, $element.parent()[0], $element[0]) === null) {
             if($element.hasClass('open')) {
+              $scope.closeEvent();
               $element.triggerHandler('blur');
             }
             $element.removeClass('open');
