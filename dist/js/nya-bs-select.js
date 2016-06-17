@@ -438,11 +438,11 @@ nyaBsSelect.directive('nyaBsSelect', ['$parse', '$document', '$timeout', '$compi
 
   return {
     restrict: 'ECA',
+    require: ['ngModel', 'nyaBsSelect'],
+    controller: 'nyaBsSelectCtrl',
     scope:{
       closeEvent:'&closeEvent'
     },
-    require: ['ngModel', 'nyaBsSelect'],
-    controller: 'nyaBsSelectCtrl',
     compile: function nyaBsSelectCompile (tElement, tAttrs){
       
 
@@ -741,8 +741,8 @@ nyaBsSelect.directive('nyaBsSelect', ['$parse', '$document', '$timeout', '$compi
         var outClick = function(event) {
           if(filterTarget(event.target, $element.parent()[0], $element[0]) === null) {
             if($element.hasClass('open')) {
-              $scope.closeEvent();
               $element.triggerHandler('blur');
+              $scope.closeEvent();
             }
             $element.removeClass('open');
           }
@@ -758,6 +758,9 @@ nyaBsSelect.directive('nyaBsSelect', ['$parse', '$document', '$timeout', '$compi
         });
         dropdownToggle.on('click', function() {
           var nyaBsOptionNode;
+          if($element.hasClass('open')){
+            $scope.closeEvent();
+          }
           $element.toggleClass('open');
           if($element.hasClass('open') && typeof liHeight === 'undefined') {
             calcMenuSize();
@@ -954,6 +957,7 @@ nyaBsSelect.directive('nyaBsSelect', ['$parse', '$document', '$timeout', '$compi
               dropdownToggle[0].focus();
               if($element.hasClass('open')) {
                 $element.triggerHandler('blur');
+                $scope.closeEvent();
               }
               $element.removeClass('open');
               event.stopPropagation();
@@ -996,6 +1000,7 @@ nyaBsSelect.directive('nyaBsSelect', ['$parse', '$document', '$timeout', '$compi
           } else if(searchBoxContainer) {
             if(keyCode === 27) {
               dropdownToggle[0].focus();
+              $scope.closeEvent();
               $element.removeClass('open');
               event.stopPropagation();
             } else if(keyCode === 38) {
@@ -1224,6 +1229,7 @@ nyaBsSelect.directive('nyaBsSelect', ['$parse', '$document', '$timeout', '$compi
             // in single selection mode. close the dropdown menu
             if($element.hasClass('open')) {
               $element.triggerHandler('blur');
+              $scope.closeEvent();
             }
             $element.removeClass('open');
             dropdownToggle[0].focus();
@@ -1294,10 +1300,8 @@ nyaBsSelect.directive('nyaBsSelect', ['$parse', '$document', '$timeout', '$compi
                 length = bsOptionElements.length,
                 optionTitle,
                 selection = [],
-                optionScopes = [],
                 match,
-                count,
-                clone;
+                count;
 
               if(isMultiple && $attrs.selectedTextFormat === 'count') {
                 count = 1;
@@ -1334,7 +1338,6 @@ nyaBsSelect.directive('nyaBsSelect', ['$parse', '$document', '$timeout', '$compi
                         selection.push(document.createTextNode(optionTitle));
                       } else {
                         selection.push(getOptionText(nyaBsOption));
-                        optionScopes.push(nyaBsOption.data('isolateScope'))
                       }
 
                     }
@@ -1345,7 +1348,6 @@ nyaBsSelect.directive('nyaBsSelect', ['$parse', '$document', '$timeout', '$compi
                         selection.push(document.createTextNode(optionTitle));
                       } else {
                         selection.push(getOptionText(nyaBsOption));
-                        optionScopes.push(nyaBsOption.data('isolateScope'))
                       }
                     }
                   }
@@ -1360,14 +1362,12 @@ nyaBsSelect.directive('nyaBsSelect', ['$parse', '$document', '$timeout', '$compi
                 dropdownToggle.removeClass('show-special-title');
                 // either single or multiple selection will show the only selected content.
                 filterOption.empty();
-                clone = $compile (selection[0])(optionScopes[0]);
-                filterOption.append(clone);
+                filterOption.append(selection[0]);
               } else {
                 dropdownToggle.removeClass('show-special-title');
                 filterOption.empty();
                 for(index = 0; index < selection.length; index++) {
-                  clone = $compile (selection[index])(optionScopes[index]);
-                  filterOption.append(clone);
+                  filterOption.append(selection[index]);
                   if(index < selection.length -1) {
                     filterOption.append(document.createTextNode(', '));
                   }
@@ -1414,7 +1414,6 @@ nyaBsSelect.directive('nyaBsSelect', ['$parse', '$document', '$timeout', '$compi
     }
   };
 }]);
-
 nyaBsSelect.directive('nyaBsOption', ['$parse', function($parse){
 
                         //00000011111111111111100000000022222222222222200000003333333333333330000000000000004444444444000000000000000000055555555550000000000000000000006666666666000000
